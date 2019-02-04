@@ -65,8 +65,7 @@ class App extends React.Component {
 
     this.state = {
       Component: null,
-      useGoogleMaps: ANDROID,
-      useOsmdroid: false,
+      useGoogleMaps: false,
     };
   }
 
@@ -106,30 +105,14 @@ class App extends React.Component {
     );
   }
 
-  renderOsmdroidSwitch() {
-    return (
-      <View>
-        <Text>Use Osmdroid?</Text>
-        <Switch
-          onValueChange={(value) => this.setState({ useOsmdroid: value })}
-          style={{ marginBottom: 10 }}
-          value={this.state.useOsmdroid}
-        />
-      </View>
-    );
-  }
-
   renderExamples(examples) {
     const {
       Component,
       useGoogleMaps,
-      useOsmdroid,
     } = this.state;
 
     let provider = PROVIDER_DEFAULT;
-    if (useOsmdroid) {
-      provider = PROVIDER_OSMDROID;
-    } else if (useGoogleMaps) {
+    if (useGoogleMaps) {
       provider = PROVIDER_GOOGLE;
     }
 
@@ -143,8 +126,7 @@ class App extends React.Component {
             contentContainerStyle={styles.scrollview}
             showsVerticalScrollIndicator={false}
           >
-            {IOS && this.renderGoogleSwitch()}
-            {ANDROID && this.renderOsmdroidSwitch()}
+            {this.renderGoogleSwitch()}
             {examples.map(example => this.renderExample(example))}
           </ScrollView>
         }
