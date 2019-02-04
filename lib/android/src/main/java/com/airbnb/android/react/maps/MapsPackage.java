@@ -39,29 +39,35 @@ public class MapsPackage implements ReactPackage {
 
   @Override
   public List<ViewManager> createViewManagers(ReactApplicationContext reactContext) {
-    AirMapCalloutManager calloutManager = new AirMapCalloutManager();
-    AirMapMarkerManager annotationManager = new AirMapMarkerManager();
-    AirMapPolylineManager polylineManager = new AirMapPolylineManager(reactContext);
-    AirMapPolygonManager polygonManager = new AirMapPolygonManager(reactContext);
-    AirMapCircleManager circleManager = new AirMapCircleManager(reactContext);
-    AirMapManager mapManager = new AirMapManager(reactContext);
-    AirMapLiteManager mapLiteManager = new AirMapLiteManager(reactContext);
-    AirMapUrlTileManager urlTileManager = new AirMapUrlTileManager(reactContext);
-    AirMapLocalTileManager localTileManager = new AirMapLocalTileManager(reactContext);
-    AirMapOverlayManager overlayManager = new AirMapOverlayManager(reactContext);
 
-    List<ViewManager> airMapManagers = Arrays.<ViewManager>asList(
-        calloutManager,
-        annotationManager,
-        polylineManager,
-        polygonManager,
-        circleManager,
-        mapManager,
-        mapLiteManager,
-        urlTileManager,
-        localTileManager,
-        overlayManager
-    );
+    List<ViewManager> managers = new ArrayList<>();
+
+    if (hasGoogleMapsOnClasspath()) {
+      AirMapCalloutManager calloutManager = new AirMapCalloutManager();
+      AirMapMarkerManager annotationManager = new AirMapMarkerManager();
+      AirMapPolylineManager polylineManager = new AirMapPolylineManager(reactContext);
+      AirMapPolygonManager polygonManager = new AirMapPolygonManager(reactContext);
+      AirMapCircleManager circleManager = new AirMapCircleManager(reactContext);
+      AirMapManager mapManager = new AirMapManager(reactContext);
+      AirMapLiteManager mapLiteManager = new AirMapLiteManager(reactContext);
+      AirMapUrlTileManager urlTileManager = new AirMapUrlTileManager(reactContext);
+      AirMapLocalTileManager localTileManager = new AirMapLocalTileManager(reactContext);
+      AirMapOverlayManager overlayManager = new AirMapOverlayManager(reactContext);
+
+      List<ViewManager> airMapManagers = Arrays.<ViewManager>asList(
+              calloutManager,
+              annotationManager,
+              polylineManager,
+              polygonManager,
+              circleManager,
+              mapManager,
+              mapLiteManager,
+              urlTileManager,
+              localTileManager,
+              overlayManager
+      );
+      managers.addAll(airMapManagers);
+    }
 
     if (hasOsmdroidOnClasspath()) {
       OsmMapUrlTileManager osmUrlTileManager = new OsmMapUrlTileManager();
@@ -71,7 +77,6 @@ public class MapsPackage implements ReactPackage {
       OsmMapPolygonManager osmPolygonManager = new OsmMapPolygonManager(reactContext);
       OsmMapManager osmMapManager = new OsmMapManager(reactContext);
 
-      List<ViewManager> managers = new ArrayList<>(airMapManagers);
       managers.addAll(Arrays.<ViewManager>asList(
           osmUrlTileManager,
           osmCalloutManager,
@@ -80,15 +85,23 @@ public class MapsPackage implements ReactPackage {
           osmPolygonManager,
           osmMapManager
       ));
-      return managers;
     }
 
-    return airMapManagers;
+    return managers;
   }
 
   private boolean hasOsmdroidOnClasspath() {
     try {
       Class.forName("org.osmdroid.views.MapView");
+      return true;
+    } catch (ClassNotFoundException ex) {
+      ex.printStackTrace();
+    }
+    return false;
+  }
+  private boolean hasGoogleMapsOnClasspath() {
+    try {
+      Class.forName("com.google.android.gms.maps.MapView");
       return true;
     } catch (ClassNotFoundException ex) {
       ex.printStackTrace();

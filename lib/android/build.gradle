@@ -53,9 +53,9 @@ dependencies {
   def osmdroidVersion = safeExtGet('osmdroidVersion', DEFAULT_OSMDROID_VERSION)
 
   compileOnly "com.facebook.react:react-native:+"
-  implementation "com.google.android.gms:play-services-base:$googlePlayServicesVersion"
-  implementation "com.google.android.gms:play-services-maps:$googlePlayServicesMapsVersion"
-  implementation "com.google.maps.android:android-maps-utils:$androidMapsUtilsVersion"
+  compileOnly "com.google.android.gms:play-services-base:$googlePlayServicesVersion"
+  compileOnly "com.google.android.gms:play-services-maps:$googlePlayServicesMapsVersion"
+  compileOnly "com.google.maps.android:android-maps-utils:$androidMapsUtilsVersion"
 
   compileOnly "org.osmdroid:osmdroid-android:${osmdroidVersion}"
 }
