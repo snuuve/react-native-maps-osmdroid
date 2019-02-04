@@ -1,6 +1,33 @@
-# react-native-maps [![npm version](https://img.shields.io/npm/v/react-native-maps.svg?style=flat)](https://www.npmjs.com/package/react-native-maps)
+# react-native-maps-osmdroid [![npm version](https://img.shields.io/npm/v/react-native-maps.svg?style=flat)](https://www.npmjs.com/package/react-native-maps-osmdroid)
 
-React Native Map components for iOS + Android
+Clone of react-native-maps (React Native Map components for iOS + Android) supporting Open Street Maps based on osmdroid.
+
+## Attention: experimental!
+
+This implementation is meant to be version-to-version fully compatible with react-native-maps.
+
+For iOS and all Google providers, the code is exactly the same, as they are merged as is.
+
+For osmdroid provider, the following are implemented:
+
+ - MapView: working with some limitations like no map styles.
+ - Markers: most of it working, except the color for default markers and z-index.
+ - Callouts: working. Needed some hacks as result of how it is implemented on osmdroid vs my lack of knowledge on react-native internals.
+ - Polygons, working except for z-index and geodesic prop.
+ - Polylines, working except for z-index and geodesic prop.
+
+### Differences to react-native-maps
+
+ - The default provider is osmdroid. Attention: the osmdroid gradle dependency is not included. You should add `implementation "org.osmdroid:osmdroid-android:${osmdroidVersion}"` to your build.gradle dependencies.
+ - Google maps is an optional dependency on this package, so the google maps libs are not included on gradle build. To enable using google maps you should add this to your build.gradle dependencies:
+ ```
+implementation "com.google.android.gms:play-services-base:${googlePlayServicesVersion}"
+implementation "com.google.android.gms:play-services-maps:${googlePlayServicesMapsVersion}"
+implementation "com.google.maps.android:android-maps-utils:${androidMapsUtilsVersion}"
+ ```
+ - More details on this ${xxxVersion} gradle variables can be found in the original installation instructions bellow.
+
+### From now, what follows is the original README.md
 
 ## Installation
 
