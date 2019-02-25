@@ -295,11 +295,11 @@ public class OsmMapView extends MapView implements MapView.OnFirstLayoutListener
             OsmMapUrlTile urlTileView = (OsmMapUrlTile) child;
             urlTileView.addToMap(this);
             features.add(index, urlTileView);
-        }/*else if (child instanceof AirMapCircle) {
-            AirMapCircle circleView = (AirMapCircle) child;
-            circleView.addToMap(map);
+        } else if (child instanceof OsmMapCircle) {
+            OsmMapCircle circleView = (OsmMapCircle) child;
+            circleView.addToMap(this);
             features.add(index, circleView);
-        }  else {
+        } /* else {
             ViewGroup children = (ViewGroup) child;
             for (int i = 0; i < children.getChildCount(); i++) {
                 addFeature(children.getChildAt(i), index);

@@ -3,6 +3,7 @@ package com.airbnb.android.react.maps;
 import android.app.Activity;
 
 import com.airbnb.android.react.maps.osmdroid.OsmMapCalloutManager;
+import com.airbnb.android.react.maps.osmdroid.OsmMapCircleManager;
 import com.airbnb.android.react.maps.osmdroid.OsmMapManager;
 import com.airbnb.android.react.maps.osmdroid.OsmMapMarkerManager;
 import com.airbnb.android.react.maps.osmdroid.OsmMapPolygonManager;
@@ -70,20 +71,22 @@ public class MapsPackage implements ReactPackage {
     }
 
     if (hasOsmdroidOnClasspath()) {
-      OsmMapUrlTileManager osmUrlTileManager = new OsmMapUrlTileManager();
       OsmMapCalloutManager osmCalloutManager = new OsmMapCalloutManager();
       OsmMapMarkerManager osmMarkerManager = new OsmMapMarkerManager();
       OsmMapPolylineManager osmPolylineManager = new OsmMapPolylineManager(reactContext);
       OsmMapPolygonManager osmPolygonManager = new OsmMapPolygonManager(reactContext);
+      OsmMapCircleManager osmMapCircleManager = new OsmMapCircleManager(reactContext);
       OsmMapManager osmMapManager = new OsmMapManager(reactContext);
+      OsmMapUrlTileManager osmUrlTileManager = new OsmMapUrlTileManager();
 
       managers.addAll(Arrays.<ViewManager>asList(
-          osmUrlTileManager,
           osmCalloutManager,
           osmMarkerManager,
           osmPolylineManager,
           osmPolygonManager,
-          osmMapManager
+          osmMapCircleManager,
+          osmMapManager,
+          osmUrlTileManager
       ));
     }
 
