@@ -1,20 +1,15 @@
 package com.airbnb.android.react.maps.osmdroid;
 
-import android.content.Context;
+import android.annotation.SuppressLint;
 import android.graphics.Canvas;
 import android.graphics.Point;
-import android.os.Build;
 import android.os.Handler;
 import android.support.v4.view.GestureDetectorCompat;
-import android.support.v4.view.MotionEventCompat;
-import android.util.DisplayMetrics;
 import android.view.GestureDetector;
 import android.view.MotionEvent;
 import android.view.ScaleGestureDetector;
 import android.view.View;
-import android.view.WindowManager;
 
-import com.airbnb.android.react.maps.AirMapUrlTile;
 import com.airbnb.android.react.maps.osmdroid.overlays.InterceptDoubleTapOverlay;
 import com.airbnb.android.react.maps.osmdroid.overlays.InterceptScrollOverlay;
 import com.airbnb.android.react.maps.osmdroid.utils.LatLngBoundsUtils;
@@ -36,7 +31,7 @@ import org.osmdroid.events.ZoomEvent;
 import org.osmdroid.tileprovider.tilesource.TileSourceFactory;
 import org.osmdroid.util.BoundingBox;
 import org.osmdroid.util.GeoPoint;
-import org.osmdroid.util.TileSystem;
+import org.osmdroid.views.CustomZoomButtonsController;
 import org.osmdroid.views.MapView;
 import org.osmdroid.views.Projection;
 import org.osmdroid.views.overlay.MapEventsOverlay;
@@ -53,6 +48,7 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
+@SuppressLint("ViewConstructor")
 public class OsmMapView extends MapView implements MapView.OnFirstLayoutListener {
 
     private final int baseMapPadding = 50;
@@ -117,16 +113,7 @@ public class OsmMapView extends MapView implements MapView.OnFirstLayoutListener
         eventDispatcher = reactContext.getNativeModule(UIManagerModule.class).getEventDispatcher();
         this.setTileSource(TileSourceFactory.DEFAULT_TILE_SOURCE);
         this.setTilesScaledToDpi(true);
-    }
-
-    /*
-     * Disabled builtin zoom controls for good, because it does not work
-     * after view detached even if reattached to window.
-     */
-    @Override
-    @Deprecated
-    public void setBuiltInZoomControls(boolean on) {
-        super.setBuiltInZoomControls(false);
+        this.getZoomController().setVisibility(CustomZoomButtonsController.Visibility.NEVER);
     }
 
     /*
@@ -152,6 +139,7 @@ public class OsmMapView extends MapView implements MapView.OnFirstLayoutListener
     }
 
     boolean m_isDestroying = false;
+
     public void doDestroy() {
         m_isDestroying = true;
         onDetach();
@@ -159,7 +147,7 @@ public class OsmMapView extends MapView implements MapView.OnFirstLayoutListener
 
     @Override
     public void onDetach() {
-        if(m_isDestroying){
+        if (m_isDestroying) {
             new Exception("not an exception").printStackTrace();
             super.onDetach();
         }
@@ -263,7 +251,7 @@ public class OsmMapView extends MapView implements MapView.OnFirstLayoutListener
         } else {
             int width = getWidth();
             int height = getHeight();
-            double zoom = TileSystem.getBoundingBoxZoom(bounds, width, height);
+            double zoom = getTileSystem().getBoundingBoxZoom(bounds, width, height);
             this.getController().setZoom(zoom);
             this.getController().setCenter(bounds.getCenterWithDateLine());
             boundsToMove = null;
@@ -342,6 +330,7 @@ public class OsmMapView extends MapView implements MapView.OnFirstLayoutListener
     public void removeFeatureAt(int index) {
         OsmMapFeature feature = features.remove(index);
         if (feature instanceof OsmMapMarker) {
+            //noinspection SuspiciousMethodCalls
             markerMap.remove(feature.getFeature());
         }
         feature.removeFromMap(this);
@@ -370,6 +359,7 @@ public class OsmMapView extends MapView implements MapView.OnFirstLayoutListener
         // if boundsToMove is not null, we now have the MapView's width/height, so we can apply
         // a proper camera move
         if (boundsToMove != null) {
+            @SuppressWarnings("unchecked")
             HashMap<String, Float> data = (HashMap<String, Float>) extraData;
             int width = data.get("width") == null ? 0 : data.get("width").intValue();
             int height = data.get("height") == null ? 0 : data.get("height").intValue();
@@ -377,9 +367,9 @@ public class OsmMapView extends MapView implements MapView.OnFirstLayoutListener
             //fix for https://github.com/airbnb/react-native-maps/issues/245,
             //it's not guaranteed the passed-in height and width would be greater than 0.
             if (width > 0 && height > 0) {
-                double zoom = TileSystem.getBoundingBoxZoom(boundsToMove, width, height);
-                this.getController().setZoom((int) zoom);
-                this.getController().setCenter(boundsToMove.getCenter());
+                double zoom = getTileSystem().getBoundingBoxZoom(boundsToMove, width, height);
+                this.getController().setZoom(zoom);
+                this.getController().setCenter(boundsToMove.getCenterWithDateLine());
                 boundsToMove = null;
             }
         }
@@ -392,7 +382,7 @@ public class OsmMapView extends MapView implements MapView.OnFirstLayoutListener
             startMonitoringRegion();
 
             GeoPoint newCenter = bounds.getCenterWithDateLine();
-            double newZoom = TileSystem.getBoundingBoxZoom(bounds, width, height);
+            double newZoom = getTileSystem().getBoundingBoxZoom(bounds, width, height);
             double currentZoom = this.getZoomLevelDouble();
 
             double centerDistance = newCenter.distanceToAsDouble(this.getMapCenter());
@@ -428,20 +418,15 @@ public class OsmMapView extends MapView implements MapView.OnFirstLayoutListener
         int width = getWidth() - padding * 2;
         int height = getHeight() - padding * 2;
         double zoom = width > 0 && height > 0
-                ? TileSystem.getBoundingBoxZoom(bounds, width, height)
+                ? getTileSystem().getBoundingBoxZoom(bounds, width, height)
                 : getMaxZoomLevel();
         if (animated) {
             startMonitoringRegion();
-            double currentZoom = getZoomLevel(true);
-            double zoomDelta = Math.abs(currentZoom - zoom);
-            // TODO: made to avoid zoom 'flickering' until osmdroid 6 is released since zoom is integer
-            if (zoomDelta > 0.1) {
-                this.getController().zoomTo((int) zoom);
-            }
-            this.getController().animateTo(bounds.getCenter());
+            this.getController().zoomTo(zoom);
+            this.getController().animateTo(bounds.getCenterWithDateLine());
         } else {
-            this.getController().setZoom((int) zoom);
-            this.getController().setCenter(bounds.getCenter());
+            this.getController().setZoom(zoom);
+            this.getController().setCenter(bounds.getCenterWithDateLine());
         }
     }
 
@@ -519,7 +504,7 @@ public class OsmMapView extends MapView implements MapView.OnFirstLayoutListener
         scaleDetector.onTouchEvent(ev);
         gestureDetector.onTouchEvent(ev);
 
-        int action = MotionEventCompat.getActionMasked(ev);
+        int action = ev.getActionMasked();
 
         switch (action) {
             case (MotionEvent.ACTION_DOWN):
