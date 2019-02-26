@@ -15,17 +15,19 @@ For osmdroid provider, the following are implemented:
  - Callouts: working. Needed some hacks as result of how it is implemented on osmdroid vs my lack of knowledge on react-native internals.
  - Polygons, working except for z-index and geodesic prop.
  - Polylines, working except for z-index and geodesic prop.
+ - Cricle, working except for z-index and geodesic prop.
 
 ### Differences to react-native-maps
 
- - The default provider is osmdroid. Attention: the osmdroid gradle dependency is not included. You should add `implementation "org.osmdroid:osmdroid-android:${osmdroidVersion}"` to your build.gradle dependencies.
- - Google maps is an optional dependency on this package, so the google maps libs are not included on gradle build. To enable using google maps you should add this to your build.gradle dependencies:
+ - You should import/require from 'react-native-maps-osmdroid'.
+ - The default provider on Android is osmdroid. The osmdroid gradle dependency is already included in the library with a default version set. If needed, you can change the version using the project wide variable `osmdroidVersion`. Example: `ext { osmdroidVersion = '6.0.3' }` in your top-level `build.gradle`.
+ - Google maps is an optional dependency for Android on this package, and the dependencies are not included on gradle build. To enable using google maps you should set the project wide variable and add the dependencies to your `build.gradle`:
  ```
 implementation "com.google.android.gms:play-services-base:${googlePlayServicesVersion}"
 implementation "com.google.android.gms:play-services-maps:${googlePlayServicesMapsVersion}"
 implementation "com.google.maps.android:android-maps-utils:${androidMapsUtilsVersion}"
  ```
- - More details on this ${xxxVersion} gradle variables can be found in the original installation instructions bellow.
+ - More details on project wide variable can be found in the original installation instructions bellow.
 
 ### From now, what follows is the original README.md
 
