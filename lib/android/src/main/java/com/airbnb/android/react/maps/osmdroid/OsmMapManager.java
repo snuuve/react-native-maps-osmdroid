@@ -37,6 +37,9 @@ public class OsmMapManager extends ViewGroupManager<OsmMapView> {
     private static final int FIT_TO_SUPPLIED_MARKERS = 6;
     private static final int FIT_TO_COORDINATES = 7;
 
+    private static final int SET_CAMERA = 11;
+    private static final int ANIMATE_CAMERA = 12;
+
     private final ReactApplicationContext appContext;
 
     public OsmMapManager(ReactApplicationContext context) {
@@ -213,8 +216,20 @@ public class OsmMapManager extends ViewGroupManager<OsmMapView> {
         Double latDelta;
         float bearing;
         ReadableMap region;
+        ReadableMap camera;
 
         switch (commandId) {
+            case SET_CAMERA:
+                camera = args.getMap(0);
+                view.animateToCamera(camera, 0);
+                break;
+
+            case ANIMATE_CAMERA:
+                camera = args.getMap(0);
+                duration = args.getInt(1);
+                view.animateToCamera(camera, duration);
+                break;
+
             case ANIMATE_TO_REGION:
                 region = args.getMap(0);
                 duration = args.getInt(1);
@@ -286,15 +301,20 @@ public class OsmMapManager extends ViewGroupManager<OsmMapView> {
     @Override
     @Nullable
     public Map<String, Integer> getCommandsMap() {
-        return MapBuilder.of(
-                "animateToRegion", ANIMATE_TO_REGION,
-                "animateToCoordinate", ANIMATE_TO_COORDINATE,
-                "animateToViewingAngle", ANIMATE_TO_VIEWING_ANGLE,
-                "animateToBearing", ANIMATE_TO_BEARING,
-                "fitToElements", FIT_TO_ELEMENTS,
-                "fitToSuppliedMarkers", FIT_TO_SUPPLIED_MARKERS,
-                "fitToCoordinates", FIT_TO_COORDINATES
-        );
+      Map<String, Integer> map = MapBuilder.of(
+          "setCamera", SET_CAMERA,
+          "animateCamera", ANIMATE_CAMERA
+          );
+      map.putAll( MapBuilder.of(
+          "animateToRegion", ANIMATE_TO_REGION,
+          "animateToCoordinate", ANIMATE_TO_COORDINATE,
+          "animateToViewingAngle", ANIMATE_TO_VIEWING_ANGLE,
+          "animateToBearing", ANIMATE_TO_BEARING,
+          "fitToElements", FIT_TO_ELEMENTS,
+          "fitToSuppliedMarkers", FIT_TO_SUPPLIED_MARKERS,
+          "fitToCoordinates", FIT_TO_COORDINATES
+      ));
+      return map;
     }
 
     @Override

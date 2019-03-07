@@ -355,6 +355,36 @@ public class OsmMapView extends MapView implements MapView.OnFirstLayoutListener
         return event;
     }
 
+    public void animateToCamera(ReadableMap camera, int duration) {
+        double zoom = getZoomLevelDouble();
+        if (camera.hasKey("zoom")) {
+            zoom = (float)camera.getDouble("zoom");
+        }
+        Float bearing = getMapOrientation();
+        if (camera.hasKey("heading")) {
+            bearing = (float)camera.getDouble("heading");
+        }
+        // not supported!
+        // if (camera.hasKey("pitch")) {
+        //     builder.tilt((float)camera.getDouble("pitch"));
+        // }
+        IGeoPoint center = getMapCenter();
+        if (camera.hasKey("center")) {
+            ReadableMap latLng = camera.getMap("center");
+            Double lat = latLng.getDouble("latitude");
+            Double lng = latLng.getDouble("longitude");
+            center = new GeoPoint(lat, lng);
+        }
+
+        if (duration > 0) {
+            this.getController().animateTo(center, zoom, (long) duration, bearing);
+        } else {
+            this.getController().setZoom(zoom);
+            this.getController().setCenter(center);
+            this.setMapOrientation(bearing);
+        }
+    }
+
     public void updateExtraData(Object extraData) {
         // if boundsToMove is not null, we now have the MapView's width/height, so we can apply
         // a proper camera move
