@@ -51,7 +51,7 @@ import java.util.Map;
 @SuppressLint("ViewConstructor")
 public class OsmMapView extends MapView implements MapView.OnFirstLayoutListener {
 
-    private final int baseMapPadding = 50;
+    private static final int DEFAULT_PADDING = 50;
 
     private BoundingBox boundsToMove;
     private boolean isMonitoringRegion = false;
@@ -386,29 +386,20 @@ public class OsmMapView extends MapView implements MapView.OnFirstLayoutListener
     }
 
     public void animateToBearing(float bearing, int duration) {
-        // TODO: animate map orientation! fallback to just setting the value
-        this.setMapOrientation(bearing);
+        startMonitoringRegion();
+        this.getController().animateTo(getMapCenter(),getZoomLevelDouble(), (long) duration, bearing);
     }
 
     public void animateToCoordinate(IGeoPoint coordinate, int duration) {
         startMonitoringRegion();
-        this.getController().animateTo(coordinate);
+        this.getController().animateTo(coordinate, getZoomLevelDouble(), (long) duration);
     }
 
     private void fitBoundingBox(BoundingBox bounds, int padding, boolean animated) {
-        int width = getWidth() - padding * 2;
-        int height = getHeight() - padding * 2;
-        double zoom = width > 0 && height > 0
-                ? getTileSystem().getBoundingBoxZoom(bounds, width, height)
-                : getMaxZoomLevel();
         if (animated) {
             startMonitoringRegion();
-            this.getController().zoomTo(zoom);
-            this.getController().animateTo(bounds.getCenterWithDateLine());
-        } else {
-            this.getController().setZoom(zoom);
-            this.getController().setCenter(bounds.getCenterWithDateLine());
         }
+        this.zoomToBoundingBox(bounds, animated, padding, getMaxZoomLevel(), null);
     }
 
     public void fitToElements(boolean animated) {
@@ -423,11 +414,13 @@ public class OsmMapView extends MapView implements MapView.OnFirstLayoutListener
         }
         if (points.size() > 0) {
             BoundingBox bounds = BoundingBox.fromGeoPoints(points);
-            fitBoundingBox(bounds, this.baseMapPadding, animated);
+            fitBoundingBox(bounds, DEFAULT_PADDING, animated);
         }
     }
 
-    public void fitToSuppliedMarkers(ReadableArray markerIDsArray, boolean animated) {
+    public void fitToSuppliedMarkers(ReadableArray markerIDsArray,
+                                     ReadableMap edgePadding,
+                                     boolean animated) {
         String[] markerIDs = new String[markerIDsArray.size()];
         for (int i = 0; i < markerIDsArray.size(); i++) {
             markerIDs[i] = markerIDsArray.getString(i);
@@ -447,8 +440,17 @@ public class OsmMapView extends MapView implements MapView.OnFirstLayoutListener
         }
 
         if (points.size() > 0) {
+            int padding = DEFAULT_PADDING;
+            if (edgePadding != null) {
+                int left = edgePadding.getInt("left");
+                int top = edgePadding.getInt("top");
+                int right = edgePadding.getInt("right");
+                int bottom = edgePadding.getInt("bottom");
+                padding = (left + top + right + bottom)/4;
+            }
+
             BoundingBox bounds = BoundingBox.fromGeoPoints(points);
-            fitBoundingBox(bounds, this.baseMapPadding, animated);
+            fitBoundingBox(bounds, padding, animated);
         }
     }
 
@@ -464,19 +466,17 @@ public class OsmMapView extends MapView implements MapView.OnFirstLayoutListener
         }
 
         if (points.size() > 0) {
-            // TODO: fix padding
-//      int left = 0;
-//      int top = 0;
-//      int right = 0;
-//      int bottom = 0;
-//      if (edgePadding != null) {
-//        left = edgePadding.getInt("left");
-//        top = edgePadding.getInt("top");
-//        right = edgePadding.getInt("right");
-//        bottom = edgePadding.getInt("bottom");
-//      }
+            int padding = DEFAULT_PADDING;
+            if (edgePadding != null) {
+                int left = edgePadding.getInt("left");
+                int top = edgePadding.getInt("top");
+                int right = edgePadding.getInt("right");
+                int bottom = edgePadding.getInt("bottom");
+                padding = (left + top + right + bottom)/4;
+            }
+
             BoundingBox bounds = BoundingBox.fromGeoPoints(points);
-            fitBoundingBox(bounds, this.baseMapPadding, animated);
+            fitBoundingBox(bounds, padding, animated);
         }
     }
 
