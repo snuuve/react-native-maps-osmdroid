@@ -381,26 +381,7 @@ public class OsmMapView extends MapView implements MapView.OnFirstLayoutListener
         if (width > 0 && height > 0) {
             startMonitoringRegion();
 
-            GeoPoint newCenter = bounds.getCenterWithDateLine();
-            double newZoom = getTileSystem().getBoundingBoxZoom(bounds, width, height);
-            double currentZoom = this.getZoomLevelDouble();
-
-            double centerDistance = newCenter.distanceToAsDouble(this.getMapCenter());
-            double boxDiagonal = getBoundingBox().getDiagonalLengthInMeters();
-
-            double zoomDelta = Math.abs(currentZoom - newZoom);
-            boolean animateZoomHint = zoomDelta <= 5;
-            boolean animateCenterHint = zoomDelta <= 1 && centerDistance < 2 * boxDiagonal;
-            if (animateCenterHint) {
-                this.getController().setZoom(newZoom);
-                this.getController().animateTo(newCenter);
-            } else if (animateZoomHint) {
-                this.getController().setCenter(newCenter);
-                this.getController().zoomTo(newZoom);
-            } else {
-                this.getController().setZoom(newZoom);
-                this.getController().setCenter(newCenter);
-            }
+            this.zoomToBoundingBox(bounds, true, 0, getMaxZoomLevel(), (long) duration);
         }
     }
 
