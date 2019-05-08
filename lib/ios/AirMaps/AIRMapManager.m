@@ -64,6 +64,11 @@ RCT_EXPORT_MODULE()
     [map addGestureRecognizer:tap];
     [map addGestureRecognizer:longPress];
     [map addGestureRecognizer:drag];
+    
+    NSString *template = @"https://osm.b-mind.pl/{z}/{x}/{y}.png";         // (1)
+    MKTileOverlay *overlay = [[MKTileOverlay alloc] initWithURLTemplate:template]; // (2)
+    overlay.canReplaceMapContent = YES;                        // (3)
+    [map addOverlay:overlay level:MKOverlayLevelAboveLabels];
 
     return map;
 }
@@ -115,7 +120,7 @@ RCT_CUSTOM_VIEW_PROPERTY(initialRegion, MKCoordinateRegion, AIRMap)
 RCT_CUSTOM_VIEW_PROPERTY(initialCamera, MKMapCamera, AIRMap)
 {
     if (json == nil) return;
-    
+
     // don't emit region change events when we are setting the initialCamera
     BOOL originalIgnore = view.ignoreRegionChanges;
     view.ignoreRegionChanges = YES;
@@ -142,7 +147,7 @@ RCT_CUSTOM_VIEW_PROPERTY(region, MKCoordinateRegion, AIRMap)
 RCT_CUSTOM_VIEW_PROPERTY(camera, MKMapCamera*, AIRMap)
 {
     if (json == nil) return;
-    
+
     // don't emit region change events when we are setting the camera
     BOOL originalIgnore = view.ignoreRegionChanges;
     view.ignoreRegionChanges = YES;
