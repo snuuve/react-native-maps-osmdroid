@@ -29,6 +29,8 @@ import org.osmdroid.events.MapListener;
 import org.osmdroid.events.ScrollEvent;
 import org.osmdroid.events.ZoomEvent;
 import org.osmdroid.tileprovider.tilesource.TileSourceFactory;
+import org.osmdroid.tileprovider.tilesource.XYTileSource;
+import org.osmdroid.tileprovider.tilesource.ITileSource;
 import org.osmdroid.util.BoundingBox;
 import org.osmdroid.util.GeoPoint;
 import org.osmdroid.views.CustomZoomButtonsController;
@@ -41,6 +43,8 @@ import org.osmdroid.views.overlay.Polygon;
 import org.osmdroid.views.overlay.Polyline;
 import org.osmdroid.views.overlay.gestures.RotationGestureOverlay;
 import org.osmdroid.views.overlay.infowindow.InfoWindow;
+import org.osmdroid.views.overlay.mylocation.MyLocationNewOverlay;
+import org.osmdroid.views.overlay.mylocation.GpsMyLocationProvider;
 
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -69,6 +73,7 @@ public class OsmMapView extends MapView implements MapView.OnFirstLayoutListener
     private final OsmMapManager manager;
     private final ThemedReactContext context;
     private final EventDispatcher eventDispatcher;
+    private final MyLocationNewOverlay mLocationOverlay;
 
     public OsmMapView(ThemedReactContext reactContext,
                       ReactApplicationContext appContext,
@@ -109,11 +114,16 @@ public class OsmMapView extends MapView implements MapView.OnFirstLayoutListener
                         return false;
                     }
                 });
-
+        final ITileSource tileSource = new XYTileSource( "HOT", 1, 20, 256, ".png",
+                 new String[] { "https://osm.b-mind.pl/" },"© OpenStreetMap contributors");
         eventDispatcher = reactContext.getNativeModule(UIManagerModule.class).getEventDispatcher();
-        this.setTileSource(TileSourceFactory.DEFAULT_TILE_SOURCE);
+        this.setTileSource(tileSource);
         this.setTilesScaledToDpi(true);
         this.getZoomController().setVisibility(CustomZoomButtonsController.Visibility.NEVER);
+
+        mLocationOverlay = new MyLocationNewOverlay(new GpsMyLocationProvider(context), this);
+        mLocationOverlay.enableMyLocation();
+        this.getOverlays().add(this.mLocationOverlay);
     }
 
     /*
