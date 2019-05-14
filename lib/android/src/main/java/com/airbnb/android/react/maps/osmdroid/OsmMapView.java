@@ -115,7 +115,7 @@ public class OsmMapView extends MapView implements MapView.OnFirstLayoutListener
                     }
                 });
         final ITileSource tileSource = new XYTileSource( "HOT", 1, 20, 256, ".png",
-                 new String[] { "https://osm-test.blinkee.city" },"© OpenStreetMap contributors");
+                 new String[] { "https://osm-test.blinkee.city/" },"© OpenStreetMap contributors");
         eventDispatcher = reactContext.getNativeModule(UIManagerModule.class).getEventDispatcher();
         this.setTileSource(tileSource);
         this.setTilesScaledToDpi(true);
