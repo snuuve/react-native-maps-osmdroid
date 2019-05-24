@@ -65,7 +65,7 @@ RCT_EXPORT_MODULE()
     [map addGestureRecognizer:longPress];
     [map addGestureRecognizer:drag];
 
-    NSString *template = @"https://osm-test.blinkee.city/{z}/{x}/{y}.png";         // (1)
+    NSString *template = @"https://osm.blinkee.city/{z}/{x}/{y}.png";         // (1)
     MKTileOverlay *overlay = [[MKTileOverlay alloc] initWithURLTemplate:template]; // (2)
     overlay.canReplaceMapContent = YES;                        // (3)
     [map addOverlay:overlay level:MKOverlayLevelAboveLabels];
