@@ -43,6 +43,27 @@ public class OsmMapPolygon extends OsmMapFeature {
     }
   }
 
+  public void setHoles(ReadableArray holes) {
+      this.holes = new ArrayList<>(holes.size());
+      for (int i = 0; i < holes.size(); i++) {
+         ReadableArray hole = holes.getArray(i);
+
+         List<GeoPoint> coordinates = new ArrayList<>(hole.size()+1);
+         for (int j = 0; j < hole.size(); j++) {
+            ReadableMap coordinate = hole.getMap(j);
+            coordinates.add(j,
+              new GeoPoint(coordinate.getDouble("latitude"), coordinate.getDouble("longitude")));
+         }
+         coordinates.add(coordinates.get(0));
+         this.holes.add(coordinates);
+
+      }
+      if (polygon != null) {
+        polygon.setHoles(this.holes);
+        mapView.invalidate();
+      }
+    }
+
   public void setFillColor(int color) {
     this.fillColor = color;
     if (polygon != null) {

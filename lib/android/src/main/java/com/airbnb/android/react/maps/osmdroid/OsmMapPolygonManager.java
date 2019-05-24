@@ -47,6 +47,11 @@ public class OsmMapPolygonManager extends ViewGroupManager<OsmMapPolygon> {
     view.setCoordinates(coordinates);
   }
 
+  @ReactProp(name = "holes")
+    public void setHoles(OsmMapPolygon view, ReadableArray holes) {
+      view.setHoles(holes);
+    }
+
   @ReactProp(name = "strokeWidth", defaultFloat = 1f)
   public void setStrokeWidth(OsmMapPolygon view, float widthInPoints) {
     float widthInScreenPx = metrics.density * widthInPoints; // done for parity with iOS
